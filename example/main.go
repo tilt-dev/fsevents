@@ -58,7 +58,6 @@ func main() {
 
 		log.Print("Stopped, press enter to restart")
 		in.ReadString('\n')
-		es.Resume = true
 		es.Start()
 
 		log.Print("Restarted, press enter to quit")
