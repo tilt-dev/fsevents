@@ -218,7 +218,7 @@ func setupStream(paths []string, flags CreateFlags, callbackInfo uintptr, eventI
 func (es *EventStream) start(paths []string, callbackInfo uintptr) {
 
 	since := eventIDSinceNow
-	if es.Resume {
+	if es.EventID != 0 {
 		since = es.EventID
 	}
 

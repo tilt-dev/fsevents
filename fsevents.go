@@ -108,7 +108,6 @@ type EventStream struct {
 	Paths   []string
 	Flags   CreateFlags
 	EventID uint64
-	Resume  bool
 	Latency time.Duration
 	// syscall represents this with an int32
 	Device int32
@@ -184,6 +183,5 @@ func (es *EventStream) Stop() {
 // Restart listening.
 func (es *EventStream) Restart() {
 	es.Stop()
-	es.Resume = true
 	es.Start()
 }
