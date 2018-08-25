@@ -180,7 +180,7 @@ func createPaths(paths []string) (C.CFArrayRef, error) {
 		defer C.free(unsafe.Pointer(cpath))
 
 		str := C.CFStringCreateWithCString(nil, cpath, C.kCFStringEncodingUTF8)
-		C.CFArrayAppendValue(cPaths, unsafe.Pointer(str))
+		C.CFArrayAppendValue(C.CFMutableArrayRef(cPaths), unsafe.Pointer(str))
 	}
 	var err error
 	if len(errs) > 0 {
@@ -236,7 +236,7 @@ func (es *EventStream) start(paths []string, callbackInfo uintptr) {
 	go func() {
 		runtime.LockOSThread()
 		es.rlref = CFRunLoopRef(C.CFRunLoopGetCurrent())
-		C.FSEventStreamScheduleWithRunLoop(es.stream, es.rlref, C.kCFRunLoopDefaultMode)
+		C.FSEventStreamScheduleWithRunLoop(es.stream, C.CFRunLoopRef(es.rlref), C.kCFRunLoopDefaultMode)
 		C.FSEventStreamStart(es.stream)
 		close(started)
 		C.CFRunLoopRun()
@@ -272,5 +272,5 @@ func stop(stream FSEventStreamRef, rlref CFRunLoopRef) {
 	C.FSEventStreamStop(stream)
 	C.FSEventStreamInvalidate(stream)
 	C.FSEventStreamRelease(stream)
-	C.CFRunLoopStop(rlref)
+	C.CFRunLoopStop(C.CFRunLoopRef(rlref))
 }
