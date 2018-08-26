@@ -1,4 +1,4 @@
-// +build darwin,go1.10
+// +build darwin
 
 package fsevents
 
@@ -106,17 +106,17 @@ func GetStreamRefPaths(f FSEventStreamRef) []string {
 // in the FSEvents database
 func GetDeviceUUID(deviceID int32) string {
 	uuid := C.FSEventsCopyUUIDForDevice(C.dev_t(deviceID))
-	if uuid == C.CFUUIDRef(0) {
+	if uuid == nullCFUUIDRef {
 		return ""
 	}
-	return cfStringToGoString(C.CFUUIDCreateString(C.CFAllocatorRef(0), uuid))
+	return cfStringToGoString(C.CFUUIDCreateString(nullCFAllocatorRef, uuid))
 }
 
 func cfStringToGoString(cfs C.CFStringRef) string {
-	if cfs == 0 {
+	if cfs == nullCFStringRef {
 		return ""
 	}
-	cfStr := C.CFStringCreateCopy(C.CFAllocatorRef(0), cfs)
+	cfStr := C.CFStringCreateCopy(nullCFAllocatorRef, cfs)
 	length := C.CFStringGetLength(cfStr)
 	if length == 0 {
 		// short-cut for empty strings
@@ -169,7 +169,7 @@ func createPaths(paths []string) (C.CFArrayRef, error) {
 		cpath := C.CString(p)
 		defer C.free(unsafe.Pointer(cpath))
 
-		str := C.CFStringCreateWithCString(C.CFAllocatorRef(0), cpath, C.kCFStringEncodingUTF8)
+		str := C.CFStringCreateWithCString(nullCFAllocatorRef, cpath, C.kCFStringEncodingUTF8)
 		C.CFArrayAppendValue(C.CFMutableArrayRef(cPaths), unsafe.Pointer(str))
 	}
 	var err error
