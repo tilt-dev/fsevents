@@ -102,21 +102,11 @@ func GetStreamRefPaths(f FSEventStreamRef) []string {
 	return ss
 }
 
-// GetDeviceUUID retrieves the UUID required to identify an EventID
-// in the FSEvents database
-func GetDeviceUUID(deviceID int32) string {
-	uuid := C.FSEventsCopyUUIDForDevice(C.dev_t(deviceID))
-	if uuid == nullCFUUIDRef {
-		return ""
-	}
-	return cfStringToGoString(C.CFUUIDCreateString(nullCFAllocatorRef, uuid))
-}
-
 func cfStringToGoString(cfs C.CFStringRef) string {
 	if cfs == nullCFStringRef {
 		return ""
 	}
-	cfStr := C.CFStringCreateCopy(nullCFAllocatorRef, cfs)
+	cfStr := copyCFString(cfs)
 	length := C.CFStringGetLength(cfStr)
 	if length == 0 {
 		// short-cut for empty strings
@@ -166,10 +156,7 @@ func createPaths(paths []string) (C.CFArrayRef, error) {
 			// because of them
 			errs = append(errs, err)
 		}
-		cpath := C.CString(p)
-		defer C.free(unsafe.Pointer(cpath))
-
-		str := C.CFStringCreateWithCString(nullCFAllocatorRef, cpath, C.kCFStringEncodingUTF8)
+		str := makeCFString(p)
 		C.CFArrayAppendValue(C.CFMutableArrayRef(cPaths), unsafe.Pointer(str))
 	}
 	var err error
